@@ -8,7 +8,7 @@ import time
 sys.path.append('python_package')
 # coding: UTF-8
 
-feed_url = "http://arxiv.org/rss/cs.LO"
+feed_url = "http://arxiv.org/rss/math.CT"
 
 
 def lambda_handler(event, context):
