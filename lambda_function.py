@@ -113,11 +113,11 @@ def get_detail_arxiv_papers(id_list):
     return preprints
 
 
-def main():
-    pl = {"bot": "pl"}
-    pl = json.dumps(pl)
-    lambda_handler(pl, None)
+# def main():
+#     pl = {"bot": "pl"}
+#     pl = json.dumps(pl)
+#     lambda_handler(pl, None)
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
