@@ -9,6 +9,10 @@ sys.path.append('python_package')
 # coding: UTF-8
 
 
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
+
 def lambda_handler(event, context):
     bot = event['bot']
     config = json.load(open('config.json', 'r'))
@@ -26,28 +30,33 @@ def lambda_handler(event, context):
     client.create_tweet(text=date)
 
     for preprint in preprints:
-        text = make_tweet(preprint)
-        time.sleep(10)
-        tweet_id = client.create_tweet(text=text).data['id']
-
-        abst = preprint['abstract']
-        abst = replace_newline(abst)
-
-        number = (len(abst) - 1) // 270 + 1
-        i = 1
-        while len(abst) > 0:
+        try:
+            text = make_tweet(preprint)
             time.sleep(10)
-            if len(abst) > 270:
-                text = abst[:270] + '...[%d/%d]' % (i, number)
-                tweet_id = client.create_tweet(
-                    text=text, in_reply_to_tweet_id=tweet_id).data['id']
-                abst = abst[270:]
-                i += 1
-            else:
-                text = abst + ' [%d/%d]' % (i, number)
-                client.create_tweet(
-                    text=text, in_reply_to_tweet_id=tweet_id)
-                abst = ''
+            tweet_id = client.create_tweet(text=text).data['id']
+
+            abst = preprint['abstract']
+            abst = replace_newline(abst)
+            abst = replace_url(abst)
+
+            number = (len(abst) - 1) // 270 + 1
+            i = 1
+            while len(abst) > 0:
+                time.sleep(10)
+                if len(abst) > 270:
+                    text = abst[:270] + '...[%d/%d]' % (i, number)
+                    tweet_id = client.create_tweet(
+                        text=text, in_reply_to_tweet_id=tweet_id).data['id']
+                    abst = abst[270:]
+                    i += 1
+                else:
+                    text = abst + ' [%d/%d]' % (i, number)
+                    client.create_tweet(
+                        text=text, in_reply_to_tweet_id=tweet_id)
+                    abst = ''
+        except Exception as e:
+            eprint(e)
+            continue
 
 
 def date_tweet(n, name, full_name):
@@ -68,7 +77,6 @@ def make_tweet(preprint):
     tweet += preprint['url']
     return tweet
 
-
 def replace_newline(text):
     lines = text.split('\n')
     for i in range(len(lines)):
@@ -79,6 +87,14 @@ def replace_newline(text):
             lines[i] += ' '
     return ''.join(lines)
 
+def replace_url(text):
+    ret = ""
+    for i in range(len(text)):
+        if i != len(text) - 1 and text[i] == '.' and not text[i+1].isspace():
+            ret += "[.]"
+        else:
+            ret += text[i]
+    return ret
 
 def get_daily_arxiv_papers(feed_url):
     id_list = []
