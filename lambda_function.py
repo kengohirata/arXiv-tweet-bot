@@ -10,7 +10,7 @@ sys.path.append('python_package')
 
 
 def lambda_handler(event, context):
-    bot = json.loads(event)['bot']
+    bot = event['bot']
     config = json.load(open('config.json', 'r'))
     client = tweepy.Client(config[bot]['bearerToken'], config[bot]['consumerKey'],
                            config[bot]['consumerSecret'], config[bot]['accessToken'], config[bot]['accessTokenSecret'])
@@ -115,7 +115,6 @@ def get_detail_arxiv_papers(id_list):
 
 # def main():
 #     pl = {"bot": "pl"}
-#     pl = json.dumps(pl)
 #     lambda_handler(pl, None)
 
 
